@@ -1,8 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage.jsx';
-// import DashboardPage from './pages/DashboardPage';
-// import TaskListPage from './pages/TaskListPage';
+import PrivateRoute from './components/PrivateRoute.jsx';
+import RoleBasedRoute from './components/RoleBasedRoute.jsx';
+import DashboardPage from './pages/DashboardPage';
+import Layout from './components/Layout';
+import TaskListPage from './pages/TaskListPage';
+import ProfilePage from './pages/ProfilePage';
+import UsersPage from './pages/UsersPage';
 // import TaskDetailsPage from './pages/TaskDetailsPage';
 
 function App() {
@@ -10,9 +15,23 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
-        {/* <Route path="/tasks" element={<TaskListPage />} /> */}
-        {/* <Route path="/tasks/:id" element={<TaskDetailsPage />} /> */}
+        <Route element={<PrivateRoute />}>
+          <Route element={<Layout />}>
+            {/* Доступно всем авторизованным пользователям */}
+            <Route path="/dashboard" element={<DashboardPage />} />
+            
+            {/* Доступно только админам и сотрудникам */}
+            <Route element={<RoleBasedRoute allowedRoles={['admin', 'employee']} />}>
+              <Route path="/tasks" element={<TaskListPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+            </Route>
+
+            {/* Доступно только админам */}
+            <Route element={<RoleBasedRoute allowedRoles={['admin']} />}>
+              <Route path="/users" element={<UsersPage />} />
+            </Route>
+          </Route>
+        </Route>
         <Route path="*" element={<LoginPage />} />
       </Routes>
     </Router>
